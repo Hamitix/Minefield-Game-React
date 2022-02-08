@@ -2,13 +2,6 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 
 import { initialBoard } from '../utils'
 
-interface InitialState {
-  score: number
-  gameStatus: GameStatusType
-  board: Case[][]
-  solverCases: HelpCase[]
-}
-
 export const incrementScore = createAction<number>('INCREMENT_SCORE')
 export const setGameStatus = createAction<GameStatusType>('SET_GAME_STATUS')
 export const setCellStatus = createAction('SET_CELL_STATUS', (cellStatus: CellType, row: number, column: number) => {

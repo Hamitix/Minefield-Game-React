@@ -1,7 +1,23 @@
-import React, {FC} from "react";
+import * as React from 'react'
+import styled from 'styled-components'
 
-const Score: FC = props => {
-    return <></>
+import { useAppSelector, useAppDispatch } from '../app/hooks'
+
+const Score = () => {
+  const dispatch = useAppDispatch()
+  const score = useAppSelector((state) => state.minefield.score)
+
+  React.useEffect(() => {
+    if (score >= 45) {
+      dispatch({ type: 'SET_GAME_STATUS', payload: 'won' })
+    }
+  }, [score, dispatch])
+
+  return <Text>{`Score : ${score}`}</Text>
 }
 
 export default Score
+
+const Text = styled('p')`
+  color: white;
+`

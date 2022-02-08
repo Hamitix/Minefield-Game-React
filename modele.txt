@@ -1,0 +1,54 @@
+# Modèle 
+
+Le reducer Minefield en Redux a aussi été réalisé pour la partie 1. 
+
+Pour réaliser la partie 2, j’ai décidé de calculer pour chaque case, le risque de tomber sur une bombe, le gain potentiel et l’espérance. 
+
+- Le risque de tomber sur une bombe est obtenue en multipliant le risque de tomber sur une bombe sur la ligne et le risque de tomber sur une bombe sur la ligne. 
+Le risque concernant la colonne est calculé en divisant le nombre total de bombes présent dans la colonne par le nombre de case actuellement  “hidden”.  
+Le même calcul est réalisé pour déterminer le risque de tomber sur une bombe sur la ligne de la case.  
+  
+( const riskRow = nbrBombsInRow / nbrHiddenCellRow ,  
+ const riskCol = nbrBombsInCol / nbrHiddenCellCol  &  
+riskOfBomb =  riskRow * riskCol ) 
+
+- Le gain potentiel représente le score potentiel que le joueur peut avoir en retournant cette case si elle ne contient pas de bombe.  
+Il est calculé en divisant la somme du score moyen sur la ligne et sur la colonne par 2.  
+Le score moyen sur la ligne est déterminé en divisant le score restant sur la ligne par le nombre de case actuellement “hidden” sur la ligne. Même principe pour le score moyen sur la colonne.  
+  
+( const scoreRow = remainingScoreInARow / nbrHiddenCellRow ,  
+ const scoreCol = remainingScoreInACol / nbrHiddenCellCol &  
+potentialScore = (scoreRow + scoreCol) / 2  ) 
+
+- Finalement l'espérance est calculée en multipliant le gain potentiel de la case  par ( 1 - le risque de tomber sur une bombe sur la case). En effet, il est nécessaire de multiplier le gain potentiel par la probabilité de ne pas tomber sur une bombe et non l’inverse. Il faut multiplier le gain par l’événement de succès et non pas d'échec pour avoir une espérance valide.  
+  
+( expectedValue: potentialScore * (1 - riskBomb) ) 
+
+
+# Reducer Redux
+
+Le status initial du reducer “Minefield” : 
+
+- “score" : 0 ( de type number),
+- “gameStatus” : “ongoing” ( de type “ongoing" | “won” | “lost”),
+- “board” : généré aléatorement  (qui est une matrix 6x6 de “Case”),
+- “solverCases”:  un tableau regroupant toutes les cases d'aides des colonnes et des lignes ( initialisée à un tableau vide)
+
+Les différentes actions sont : 
+
+- incrementScore : qui permet d’augmenter le score par un montant précisé,
+- setGameStatus : qui permet de modifier le status de la partie en cours,
+- setCellStatus: qui permet de modifier le status d’une case du plateau,
+- setHintStats: qui permet de modifier les statistiques d’une case du plateau,
+- setSolverCase : qui permet d’ajouter une case d’aide ( ligne ou colonne) au tableau du reducer,
+- reset: qui permet de revenir à l’état initial du reducer.
+
+# Détermination de la case la plus adaptée 
+
+Lors de la création du plateau de jeu, le score et l’apparition d’une bombe sur chaque case sont aléatoires selon des paramètres choisis. 
+
+(  getRandomInt = () => Math.floor(Math.random() * 3) + 1 &&  getIsABomb = () => Math.random() < 0.2 ) 
+
+Après que chaque case ait été généré, les cases d’aides des lignes et colonnes sont aussi créées. Après cela, le risque de tomber sur une bombe, de gain potentiel et d’espérance de chaque case est aussi calculé et est sauvegardé dans le store redux.
+Après chaque retournement de case de l’utilisateur, les statistiques de chaque case appartenant soit à la ligne soit à la colonne de la case retournée, (qui ne sont pas déjà découvertes), vont être mis à jour. En effet, il n’est pas nécessaire de mettre à jour les autres cases, leurs statistiques seront les mêmes. 
+Finalement, lorsque  l’utilisateur va appuyer sur le bouton “Display Hint”, le programme va parcourir le tableau et les statistiques de chaque case pour trouver la meilleure case adaptée. Cette case est la case ayant l’espérance la plus élevée. Si plusieurs cases ont l’espérance maximum du plateau, celle avec le faible risque de tomber sur une bombe sera privilégiée.

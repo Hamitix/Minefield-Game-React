@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
-import minefieldReducer from "../reducers/minefieldReducer"
+import minefieldReducer from '../reducers/minefieldReducer'
 
 export const store = configureStore({
   reducer: {
-    counter: minefieldReducer
-  }
+    minefield: minefieldReducer,
+  },
 })
 
 export type AppDispatch = typeof store.dispatch
